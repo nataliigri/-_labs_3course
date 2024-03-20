@@ -1,3 +1,5 @@
+-- Файл tests12.hs
+
 import Test.Hspec
 import qualified Task12 as T
 
