@@ -1,6 +1,6 @@
 % Визначення станів, символів алфавіту та переходів
 states([0, 1, 2, 3]).
-symbols([a, b]).
+symbols([b, a]).
 transition(0, b, 1).
 transition(0, a, 2).
 transition(1, b, 3).
