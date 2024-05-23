@@ -1,3 +1,9 @@
+% Допоміжні предикати для визначення максимального елемента в списку
+max_list([X], X).
+max_list([X|Xs], Max) :-
+    max_list(Xs, TailMax),
+    Max is max(X, TailMax).
+
 % Предикат для генерації списку простих чисел за допомогою решета Ератосфена
 prime_sieve(N, Primes) :-
     sieve(2, N, [], PrimesReversed),
@@ -13,7 +19,6 @@ sieve(I, N, Acc, Primes) :-
     ;   I1 is I + 1,
         sieve(I1, N, Acc, Primes)
     ).
-
 
 is_prime(2).
 is_prime(3).
@@ -38,7 +43,6 @@ splitByPrimes(InputList, [P|Primes], Result) :-
     append(SmallerList, RestList, Result),
     splitByPrimes(Rest, Primes, RestList).
 
-
 % Допоміжний предикат для розділення списку на дві частини: одна з елементами менше P, інша - залишок
 partitionList(_, [], [], []).
 partitionList(P, [X|Xs], Smaller, Rest) :-
@@ -49,11 +53,20 @@ partitionList(P, [X|Xs], Smaller, [X|Rest]) :-
     X >= P,
     partitionList(P, Xs, Smaller, Rest).
 
+% Предикат для видалення порожніх підсписків
+remove_empty_lists([], []).
+remove_empty_lists([[]|Xs], Ys) :-
+    remove_empty_lists(Xs, Ys).
+remove_empty_lists([X|Xs], [X|Ys]) :-
+    X \= [],
+    remove_empty_lists(Xs, Ys).
 
 % Приклад використання:
 task(InputList, Result) :-
-    prime_sieve(30, Primes), % Генеруємо список простих чисел до 30
-    splitByPrimes(InputList, Primes, Result).
+    max_list(InputList, Max),
+    prime_sieve(Max, Primes), % Генеруємо список простих чисел до максимального елемента
+    splitByPrimes(InputList, Primes, RawResult),
+    remove_empty_lists(RawResult, Result). % Видаляємо порожні підсписки
 
 main :-
     test(empty_input),
@@ -69,7 +82,7 @@ test(empty_input) :-
 
 test(single_number_input) :-
     task([27], Result),
-    (   Result = [[],[],[],[],[],[],[],[],[],[27]]
+    (   Result = [[27]]
     ->  format('Тест single_number_input успішно пройдено~n')
     ).
 
@@ -85,6 +98,5 @@ test(prime_numbers_generation) :-
     ->  format('Тест prime_numbers_generation успішно пройдено~n')
     ).
 
-
 % Приклад використання:
-%?- task([29,19,31,31,47,19,35,10,6,22,15,20,41,7,21,9,30,14,1,47,46,45,2,38,14,31], Result).
+% ?- task([29,19,31,31,47,19,35,10,6,22,15,20,41,7,21,9,30,14,1,47,46,45,2,38,14,31], Result).
