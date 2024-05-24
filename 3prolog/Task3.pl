@@ -1,5 +1,5 @@
-% Визначення станів, символів алфавіту та переходів
-states([0, 1, 2, 3]).
+% Визначення скінченого автомата
+/*states([0, 1, 2, 3]).
 symbols([b, a]).
 transition(0, b, 1).
 transition(0, a, 2).
@@ -10,7 +10,24 @@ transition(2, a, 0).
 transition(3, b, 1).
 transition(3, a, 3).
 startState(0).
-finalStates([3]).
+finalStates([3]).*/
+
+states([0, 1, 2, 3]).
+symbols([b, a, c]).
+transition(0, b, 1).
+transition(0, a, 2).
+transition(1, b, 3).
+transition(1, a, 1).
+transition(2, b, 2).
+transition(2, c, 2).
+transition(2, a, 3).
+transition(2, a, 0).
+transition(3, b, 1).
+transition(3, c, 2).
+transition(3, a, 3).
+transition(3, b, 3).
+startState(0).
+finalStates([3, 2]).
 
 % Перевірка, чи символ належить алфавіту автомата
 symbol(Symbol) :-
@@ -30,38 +47,21 @@ accept_word_helper(State, [Symbol|Word]) :-
     transition(State, Symbol, NextState),
     accept_word_helper(NextState, Word).
 
-% Предикат для знаходження слів x та xxx, які приймаються автоматом
-find_x_and_xxx(MinLen, MaxLen) :-
-    MinLen =< MaxLen,                      % Перевірка, що MinLen <= MaxLen
-    between(MinLen, MaxLen, K),            % Генерація довжини слова у заданому діапазоні
-    K > 0,                                 % Перевірка, чи K більше 0
-    automata_word_length_k(K, X),          % Знаходження слова X
-    append(X, X, XX),                      % Створення подвійного слова XX
-    append(XX, X, XXX),                    % Створення потрійного слова XXX
-    accept_word(XXX),                      % Перевірка, чи приймається XXX
-    format('Знайдене слово X = ~s\n', [X]),
-    format('Знайдене слово XXX = ~s\n', [XXX]),
-    !.
+findXXX(X, XXX) :-
+    append(X, X, XX),
+    append(XX, X, XXX),
+    (accept_word(XXX) ->
+        true
+    ;
+        fail
+    ).
 
-
-% Предикат для генерації слова заданої довжини, яке приймається автоматом
-automata_word_length_k(K, Word) :-
-    length(Word, K),                        % Генерація слова довжиною K
-    maplist(symbol, Word),                  % Перевірка, чи всі символи належать алфавіту
-    accept_word(Word).                      % Перевірка, чи приймається слово автоматом
-
-% Приклад використання:
-% find_x_and_xxx(9, 10). % Знаходження слів X та XXX довжиною від 9 до 10 символів
-
-% Тестування
 main :-
-    writeln('Перевірка на мінімальну довжину'),
-    \+ (find_x_and_xxx(0, 1) -> true ; false),
-    writeln('Тест на мінімальну довжину успішно пройдено.'),
-    writeln('Перевірка на велику довжину'),
-    find_x_and_xxx(19, 20),
-    writeln('Перевірка на випадкову довжину'),
-    find_x_and_xxx(5, 8),
-    writeln('Перевірка на неправильний діапазон'),
-	\+ (find_x_and_xxx(3, 2) -> true ; false),
-    writeln('Тест на неправильний діапазон успішно пройдено.').
+    writeln('Введіть слово X:'),
+    read(XAtom),  % Користувач вводить слово X як атом
+    atom_chars(XAtom, XList),  % Конвертує атом у список символів
+    (findXXX(XList, XXX) ->
+        format('Знайдене слово XXX: ~s\n', [XXX])
+    ;
+        writeln('Слово XXX не знайдено.')
+    ).
